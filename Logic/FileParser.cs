@@ -21,7 +21,7 @@ namespace HydrothermalJunctionDetector.Persistence
             throw new NotImplementedException();
         }
 
-        public List<Coordinate> ParseFile(string fileLocation)
+        public List<VentLine> ParseFile(string fileLocation)
         {
             throw new NotImplementedException();
         }

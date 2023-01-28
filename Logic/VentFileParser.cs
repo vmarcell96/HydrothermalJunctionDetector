@@ -13,7 +13,7 @@ namespace HydrothermalJunctionDetector.Logic
         {
 
         }
-        public bool CheckCoordValidity(Coordinate coord)
+        public bool CheckLineValidity(VentLine line)
         {
             return true;
         }
