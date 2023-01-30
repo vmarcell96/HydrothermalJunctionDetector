@@ -8,7 +8,7 @@ namespace HydrothermalJunctionDetector.Logic
 {
     internal interface IFileParser
     {
-        List<VentLine> ParseFile(string fileLocation);
+        List<VentLine> ParseFile(string fileLocation = "default");
         bool CheckFileValidity(string fileLocation);
 
 
