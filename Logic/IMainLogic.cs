@@ -12,8 +12,8 @@ namespace HydrothermalJunctionDetector.Logic
         void ValidateFile();
 
         void GetCoordinates();
-        void CalculateCrossingPoints();
-        void ReportCrossingPoints();
+        Dictionary<(float, float), int> CalculateCrossingPoints(List<VentLine> ventLines);
+        void ReportCrossingPoints(Dictionary<(float, float), int> crossingPoints);
         void WriteOutReport();
     }
 }

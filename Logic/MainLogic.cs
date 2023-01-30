@@ -23,9 +23,34 @@ namespace HydrothermalJunctionDetector.Logic
             throw new NotImplementedException();
         }
 
-        public void CalculateCrossingPoints()
+        public Dictionary<(float, float), int> CalculateCrossingPoints(List<VentLine> ventLines)
         {
-            throw new NotImplementedException();
+            Dictionary<(float, float), int> crossingPointDict = new Dictionary<(float, float), int>();
+            for (int i = 0; i < ventLines.Count-1; i++)
+            {
+                var currentLine = ventLines[i];
+                for (int j = i+1; j < ventLines.Count; j++)
+                {
+                    (float, float)? crossingPoint = Utility.GetInterSectionOfSegments(currentLine.StartPoint, currentLine.EndPoint, ventLines[j].StartPoint, ventLines[j].EndPoint);
+                    if (crossingPoint.HasValue)
+                    {
+                        AddPointToDictionary(crossingPoint.Value, crossingPointDict);
+                    }
+                }
+            }
+            return crossingPointDict;
+        }
+
+        private void AddPointToDictionary((float, float) point, Dictionary<(float, float), int> dict)
+        {
+            if (dict.ContainsKey(point))
+            {
+                dict[point]++;
+            }
+            else
+            {
+                dict[point] = 1;
+            }
         }
 
         public void GetCoordinates()
@@ -38,9 +63,14 @@ namespace HydrothermalJunctionDetector.Logic
             throw new NotImplementedException();
         }
 
-        public void ReportCrossingPoints()
+        public void ReportCrossingPoints(Dictionary<(float, float), int> crossingPointDict)
         {
-            throw new NotImplementedException();
+            var keyList = crossingPointDict.Keys.ToList();
+            keyList.Sort();
+            foreach (var key in keyList)
+            {
+                Console.WriteLine($"{key.ToString()} -> {crossingPointDict[key]}");
+            }
         }
 
         public void ValidateFile()
