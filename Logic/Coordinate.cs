@@ -8,8 +8,13 @@ namespace HydrothermalJunctionDetector.Logic
 {
     internal struct Coordinate
     {
-        //float takes up less space than double, and in the example we only use one number after the decimal point
+        //float takes up less space than double
         public float X;
         public float Y;
+
+        public Coordinate(float x, float y)
+        {
+            X = x; Y = y;
+        }
     }
 }
