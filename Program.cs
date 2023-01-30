@@ -13,5 +13,7 @@ IUIPrinter uiPrinter = new UIPrinter(consoleLogger);
 
 IMainLogic mainLogic = new MainLogic(fileParser, uiPrinter);
 
-mainLogic.GetInputFileLocation();
-mainLogic.ValidateFile();
+
+
+fileHandler.ReadFile();
+

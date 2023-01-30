@@ -8,7 +8,7 @@ namespace HydrothermalJunctionDetector.Persistence
 {
     internal interface IFileHandler
     {
-        string ReadFile(string fileLocation);
+        string[] ReadFile(string fileLocation = "default");
         void WriteFile(string outputLocation);
     }
 }
