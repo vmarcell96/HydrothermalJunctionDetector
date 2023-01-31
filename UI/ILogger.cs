@@ -8,6 +8,8 @@ namespace HydrothermalJunctionDetector.UI
 {
     internal interface ILogger
     {
-        void Log(string message);
+        void LogWriteLine(string message);
+        public void LogWrite(string message);
+        public void LogError(string message);
     }
 }

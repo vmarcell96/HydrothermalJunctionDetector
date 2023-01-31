@@ -8,7 +8,6 @@ namespace HydrothermalJunctionDetector.UI
 {
     internal interface IUIPrinter
     {
-        void PrintError(string message);
         void PrintMainMenu();
         void PrintProgressBar(int percentLoaded);
         void PrintMessage(string message);
