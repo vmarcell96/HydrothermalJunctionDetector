@@ -8,14 +8,13 @@ using System.IO;
 
 namespace HydrothermalJunctionDetector
 {
-    internal class FileHandler : IFileHandler
+    public class FileHandler : IFileHandler
     {
         public string[] ReadFile(string fileLocation)
         {
             // Read each line of the file into a string array. Each element
             // of the array is one line of the file.
             string[] lines = File.ReadAllLines(fileLocation);
-
 
             return lines;
         }

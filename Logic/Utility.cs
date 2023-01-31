@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace HydrothermalJunctionDetector.Logic
 {
-    internal class Utility
+    public class Utility
     {
         public static (float, float)? GetInterSectionOfSegments((float, float) pointA, (float, float) pointB, (float, float) pointC, (float, float) pointD)
         {
