@@ -10,16 +10,16 @@ namespace HydrothermalJunctionDetector
 {
     public class FileHandler : IFileHandler
     {
-        public string[] ReadFile(string fileLocation)
+        public async Task<string[]> ReadFileAsync(string fileLocation)
         {
             // Read each line of the file into a string array. Each element
             // of the array is one line of the file.
-            string[] lines = File.ReadAllLines(fileLocation);
+            string[] lines = await File.ReadAllLinesAsync(fileLocation);
 
             return lines;
         }
 
-        public void WriteFile(string outputLocation)
+        public async Task WriteFileAsync(string outputLocation)
         {
             throw new NotImplementedException();
         }
