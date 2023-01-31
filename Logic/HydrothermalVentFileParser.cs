@@ -45,7 +45,7 @@ namespace HydrothermalJunctionDetector.Persistence
                         CalculatePoints(intArray[0], intArray[1], intArray[2], intArray[3], result);
                         processedPercentage = (((i+1) * 100) / lines.Length);
                         _uiPrinter.PrintProgressBar((int)Math.Round(processedPercentage));
-                        Thread.Sleep(5);
+                        //Thread.Sleep(1);
                     }
                 }
             }
