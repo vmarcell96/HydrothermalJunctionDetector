@@ -34,6 +34,7 @@ namespace HydrothermalJunctionDetector.Persistence
                 {
                     // Cancel the task
                     _cancellationTokenSource.Cancel();
+                    _uiPrinter.ClearConsole();
                 }
             });
         }
@@ -49,7 +50,7 @@ namespace HydrothermalJunctionDetector.Persistence
             {
 
                 string filePath = _uiPrinter.GetInputFileLocation();
-                // I had to use a random default value because default values must be constant at compile time
+
                 if (filePath == "default")
                 {
                     filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\InputFileLineSegments.txt");
@@ -70,6 +71,7 @@ namespace HydrothermalJunctionDetector.Persistence
                     if (CheckLineSlopeValidity(intArray[0], intArray[1], intArray[2], intArray[3]))
                     {
                         //CPU demanding task
+                        //Tasks are going to be running parallel
                         tasks.Add(Task.Run(() => Utility.FindIntegerLineSegmentPoints(intArray[0], intArray[1], intArray[2], intArray[3])));
                     }
                 }
@@ -82,7 +84,7 @@ namespace HydrothermalJunctionDetector.Persistence
                     var finishedTask = await Task.WhenAny(tasks);
                     processedLines++;
                     _uiPrinter.PrintProgressBar((processedLines * 100) / lines.Length);
-                    Thread.Sleep(1);
+                    //Thread.Sleep(1);
                 }
 
                 _uiPrinter.ClearConsole();
@@ -99,12 +101,21 @@ namespace HydrothermalJunctionDetector.Persistence
 
                 ReportCrossingPoints(pointDict);
 
+                //if mode variable equals "print points" the method will print the coordinates just like in the example
                 if (mode == "print points")
                 {
                     _uiPrinter.PrintPoints(pointDict);
                 }
 
+                string outputFilePath = _uiPrinter.GetOutputFileLocation();
 
+                if (outputFilePath == "default")
+                {
+                    outputFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\CrossingPoints" + $"-{Guid.NewGuid()}" + ".txt");
+                }
+
+                await _fileHandler.WriteFileAsync(outputFilePath, ConvertPointDictionaryToStringArray(pointDict));
+                
             }
             catch (Exception)
             {
@@ -112,6 +123,10 @@ namespace HydrothermalJunctionDetector.Persistence
             }
         }
 
+        private string[] ConvertPointDictionaryToStringArray(Dictionary<(int, int), int> pointsDict)
+        {
+            return pointsDict.Select(kvp => $"({kvp.Key.Item1},{kvp.Key.Item1}) -> {kvp.Value}\n").ToArray<string>();
+        }
 
         private void AddPointsToDictionary((int, int)[] points, Dictionary<(int, int), int> pointsDict)
         {
