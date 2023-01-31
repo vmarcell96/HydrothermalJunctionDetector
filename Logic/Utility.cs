@@ -66,6 +66,70 @@ namespace HydrothermalJunctionDetector.Logic
             return coord1 + (coord2 - coord1) * t;
         }
 
+        public static (int, int)[] FindIntegerLineSegmentPoints(int X1, int Y1, int X2, int Y2)
+        {
+            (int, int)[] points;
+            //Segment is horizontal, Y1 = Y2
+            if (Y1 == Y2)
+            {
+                points = new (int, int)[Math.Abs(X1 - X2)+1];
+                for (int i = 0; i < points.Length; i++)
+                {
+                    if (X1 > X2)
+                    {
+                        points[i] = (X1 - i, Y1);
+                    }
+                    else
+                    {
+                        points[i] = (X1 + i, Y1);
+                    }
+                }
+            }
+            //Segment is vertical, X1 = X2
+            else if (X1 == X2)
+            {
+                points = new (int, int)[Math.Abs(Y1 - Y2)+1];
+                for (int i = 0; i < points.Length; i++)
+                {
+                    if (Y1 > Y2)
+                    {
+                        points[i] = (X1, Y1 - i);
+                    }
+                    else
+                    {
+                        points[i] = (X1, Y1 + i);
+                    }
+                }
+            }
+            //Line was validated before so it can only be diagonal
+            //X and Y coordinates are both changing going from the start point to the end point
+            else
+            {
+                points = new (int, int)[Math.Abs(Y1 - Y2)+1];
+                for (int i = 0; i < points.Length; i++)
+                {
+                    int x, y;
+                    if (Y1 > Y2)
+                    {
+                        y = Y1 - i;
+                    }
+                    else
+                    {
+                        y = Y1 + i;
+                    }
+                    if (X1 > X2)
+                    {
+                        x = X1 - i;
+                    }
+                    else
+                    {
+                        x = X1 + i;
+                    }
+                    points[i] = (x, y);
+                }
+            }
+            return points;
+        }
         
 
     }
