@@ -3,7 +3,7 @@ using HydrothermalJunctionDetector;
 using HydrothermalJunctionDetector.Logic;
 using HydrothermalJunctionDetector.Persistence;
 using HydrothermalJunctionDetector.UI;
-
+using System.Diagnostics;
 
 ILogger consoleLogger = new ConsoleLogger();
 IFileHandler fileHandler = new FileHandler();
@@ -18,7 +18,16 @@ MainLogic mainLogic = new MainLogic(fileParser, uiPrinter);
 
 try
 {
+    Stopwatch stopWatch = new Stopwatch();
+    stopWatch.Start();
     mainLogic.Run("default");
+    stopWatch.Stop();
+    // Get the elapsed time as a TimeSpan value.
+    TimeSpan ts = stopWatch.Elapsed;
+    string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+            ts.Hours, ts.Minutes, ts.Seconds,
+            ts.Milliseconds / 10);
+    Console.WriteLine("RunTime " + elapsedTime);
     //Test not valid txt file
     //var points = fileParser.ParseFile(@"..\..\..\InputFileLineSegments_NotValid.txt");
 
