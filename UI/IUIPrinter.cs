@@ -12,6 +12,12 @@ namespace HydrothermalJunctionDetector.UI
         void PrintMainMenu();
         void PrintProgressBar(int percentLoaded);
         void PrintMessage(string message);
-        
+
+        public string GetInputFileLocation();
+
+        public void PrintPoints(Dictionary<(int, int), int> pointsDict);
+
+        public void ClearConsole();
+
     }
 }

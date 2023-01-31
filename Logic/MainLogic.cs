@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace HydrothermalJunctionDetector.Logic
 {
-    internal class MainLogic : IMainLogic
+    internal class MainLogic
     {
         private readonly IFileParser _fileParser;
         private readonly IUIPrinter _uiPrinter;
@@ -23,34 +23,44 @@ namespace HydrothermalJunctionDetector.Logic
             throw new NotImplementedException();
         }
 
-        public void CalculateCrossingPoints()
+        
+
+        public void Run(string mode)
         {
-            throw new NotImplementedException();
+            string filePath = _uiPrinter.GetInputFileLocation();
+            _uiPrinter.ClearConsole();
+            var pointsDict = _fileParser.ParseFile(filePath);
+            _uiPrinter.ClearConsole();
+            //By default this feature is disabled because console window is too small to display all the points
+            if (mode == "print points")
+            {
+                _uiPrinter.PrintPoints(pointsDict);
+            }
+            var crossingPoints = FilterCrossingPoints(pointsDict);
+            ReportCrossingPoints(crossingPoints);
         }
 
-        public void GetCoordinates()
+        public void ReportCrossingPoints(Dictionary<(int, int), int> crossingPointDict)
         {
-            throw new NotImplementedException();
+            var keyList = crossingPointDict.Keys.ToList();
+            keyList.Sort();
+            Console.WriteLine($"Number of dangerous points: {keyList.Count}");
+            foreach (var key in keyList)
+            {
+                Console.WriteLine($"{key.ToString()} -> {crossingPointDict[key]}");
+            }
         }
 
-        public string GetInputFileLocation()
+        private Dictionary<(int, int), int> FilterCrossingPoints(Dictionary<(int, int), int> pointsDict, int minimumOcurrencies = 2)
         {
-            throw new NotImplementedException();
-        }
 
-        public void ReportCrossingPoints()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void ValidateFile()
-        {
-            throw new NotImplementedException();
+            return pointsDict.Where(kvp => kvp.Value >= minimumOcurrencies).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         }
 
         public void WriteOutReport()
         {
             throw new NotImplementedException();
         }
+
     }
 }
