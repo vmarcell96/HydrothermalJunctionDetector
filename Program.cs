@@ -5,44 +5,41 @@ using HydrothermalJunctionDetector.Persistence;
 using HydrothermalJunctionDetector.UI;
 using System.Diagnostics;
 
-ILogger consoleLogger = new ConsoleLogger();
-IFileHandler fileHandler = new FileHandler();
-IUIPrinter uiPrinter = new UIPrinter(consoleLogger);
-IFileParser fileParser = new HydrothermalVentFileParser(fileHandler, uiPrinter);
-
-MainLogic mainLogic = new MainLogic(fileParser, uiPrinter);
-
-
-
-
-
-try
+namespace HydrothermalJunctionDetector
 {
-    Stopwatch stopWatch = new Stopwatch();
-    stopWatch.Start();
-    mainLogic.Run("default");
-    stopWatch.Stop();
-    // Get the elapsed time as a TimeSpan value.
-    TimeSpan ts = stopWatch.Elapsed;
-    string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
-            ts.Hours, ts.Minutes, ts.Seconds,
-            ts.Milliseconds / 10);
-    Console.WriteLine("RunTime " + elapsedTime);
-    //Test not valid txt file
-    //var points = fileParser.ParseFile(@"..\..\..\InputFileLineSegments_NotValid.txt");
+    internal class Program
+    {
+        static async Task Main(string[] args)
+        {
+            ILogger consoleLogger = new ConsoleLogger();
+            
+            try
+            {
+                IUIPrinter uiPrinter = new UIPrinter(consoleLogger);
 
-    //var ventLines = fileParser.ParseFile();
-    //foreach (var item in ventLines)
-    //{
-    //    Console.WriteLine(item.ToString());
-    //}
-    //var crossingPoints = mainLogic.CalculateCrossingPoints(ventLines);
-    //mainLogic.ReportCrossingPoints(crossingPoints);
+                IFileHandler fileHandler = new FileHandler();
+                
+                IFileParser fileParser = new HydrothermalVentFileParser(fileHandler, uiPrinter);
 
+                MainLogic mainLogic = new MainLogic(fileParser, uiPrinter);
+
+                await mainLogic.Run();
+
+            }
+            catch (Exception e)
+            {
+                consoleLogger.LogError(e.Message);
+            }
+        }
+    }
 }
-catch (Exception e)
-{
 
-    Console.WriteLine(e.Message);
-}
+
+
+
+
+
+
+
+
 
