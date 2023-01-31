@@ -7,10 +7,10 @@ using HydrothermalJunctionDetector.UI;
 
 ILogger consoleLogger = new ConsoleLogger();
 IFileHandler fileHandler = new FileHandler();
-IFileParser fileParser = new HydrothermicVentFileParser(fileHandler);
 IUIPrinter uiPrinter = new UIPrinter(consoleLogger);
+IFileParser fileParser = new HydrothermalVentFileParser(fileHandler, uiPrinter);
 
-IMainLogic mainLogic = new MainLogic(fileParser, uiPrinter);
+MainLogic mainLogic = new MainLogic(fileParser, uiPrinter);
 
 
 
@@ -18,20 +18,18 @@ IMainLogic mainLogic = new MainLogic(fileParser, uiPrinter);
 
 try
 {
-
+    mainLogic.Run("default");
     //Test not valid txt file
-    var ventLines = fileParser.ParseFile(@"..\..\..\InputFileLineSegments_NotValid.txt");
+    //var points = fileParser.ParseFile(@"..\..\..\InputFileLineSegments_NotValid.txt");
 
     //var ventLines = fileParser.ParseFile();
     //foreach (var item in ventLines)
     //{
     //    Console.WriteLine(item.ToString());
     //}
-    var crossingPoints = mainLogic.CalculateCrossingPoints(ventLines);
-    mainLogic.ReportCrossingPoints(crossingPoints);
+    //var crossingPoints = mainLogic.CalculateCrossingPoints(ventLines);
+    //mainLogic.ReportCrossingPoints(crossingPoints);
 
-
-    
 }
 catch (Exception e)
 {
