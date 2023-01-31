@@ -5,6 +5,8 @@ VisualStudioVersion = 17.4.33213.308
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HydrothermalJunctionDetector", "HydrothermalJunctionDetector.csproj", "{66E2C75A-690F-4374-96C8-9B81C51EB890}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HydrothermalJunctionDetector.Tests", "HydrothermalJunctionDetector.Tests\HydrothermalJunctionDetector.Tests.csproj", "{338877BE-31EC-4EAF-90DD-9A38B7CCD1BD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{66E2C75A-690F-4374-96C8-9B81C51EB890}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{66E2C75A-690F-4374-96C8-9B81C51EB890}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{66E2C75A-690F-4374-96C8-9B81C51EB890}.Release|Any CPU.Build.0 = Release|Any CPU
+		{338877BE-31EC-4EAF-90DD-9A38B7CCD1BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{338877BE-31EC-4EAF-90DD-9A38B7CCD1BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{338877BE-31EC-4EAF-90DD-9A38B7CCD1BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{338877BE-31EC-4EAF-90DD-9A38B7CCD1BD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
