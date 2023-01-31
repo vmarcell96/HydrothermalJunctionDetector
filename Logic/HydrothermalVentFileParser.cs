@@ -3,8 +3,10 @@ using HydrothermalJunctionDetector.UI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace HydrothermalJunctionDetector.Persistence
@@ -13,56 +15,101 @@ namespace HydrothermalJunctionDetector.Persistence
     {
         private readonly IFileHandler _fileHandler;
         private readonly IUIPrinter _uiPrinter;
+        private readonly CancellationTokenSource _cancellationTokenSource;
 
         public HydrothermalVentFileParser(IFileHandler fileHandler, IUIPrinter uiPrinter)
         {
             _fileHandler = fileHandler;
             _uiPrinter = uiPrinter;
+            _cancellationTokenSource = new CancellationTokenSource();
         }
 
-        public Dictionary<(int, int), int> ParseFile(string fileLocation)
+        public void RunKeyBoardTask()
         {
-            Dictionary<(int, int), int> result = new Dictionary<(int, int), int>();
+            // Creating a task to listen to keyboard key press
+            var keyBoardTask = Task.Run(() =>
+            {
+                var key = Console.ReadKey();
+                if (key.Key == ConsoleKey.Escape)
+                {
+                    // Cancel the task
+                    _cancellationTokenSource.Cancel();
+                }
+            });
+        }
+
+        public async Task ParseFileParallelAsync(string mode = "normal")
+        {
+            
+            
+            List<Task<(int, int)[]>> tasks = new List<Task<(int, int)[]>>();
+            Dictionary<(int, int), int> pointDict = new Dictionary<(int, int), int>();
+            
             try
             {
+
+                string filePath = _uiPrinter.GetInputFileLocation();
                 // I had to use a random default value because default values must be constant at compile time
-                if (fileLocation == "default")
+                if (filePath == "default")
                 {
-                    fileLocation = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\InputFileLineSegments.txt");
+                    filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\InputFileLineSegments.txt");
                 }
 
-                string[] lines = _fileHandler.ReadFile(fileLocation);
+                string[] lines = await _fileHandler.ReadFileAsync(filePath);
+
+
+                int processedLines = 0;
+                _uiPrinter.ClearConsole();
                 _uiPrinter.PrintProgressBar(0);
+
+                RunKeyBoardTask();
+
                 for (int i = 0; i < lines.Length; i++)
                 {
                     int[] intArray = ConvertTextLineToIntArray(lines[i]);
-                    double processedPercentage = 0;
-                    
-                    // check if they are horizontal,vertical,diagonal, if not the vent line is skipped
                     if (CheckLineSlopeValidity(intArray[0], intArray[1], intArray[2], intArray[3]))
                     {
                         //CPU demanding task
-                        CalculatePoints(intArray[0], intArray[1], intArray[2], intArray[3], result);
-                        processedPercentage = (((i+1) * 100) / lines.Length);
-                        _uiPrinter.PrintProgressBar((int)Math.Round(processedPercentage));
-                        //Thread.Sleep(1);
+                        tasks.Add(Task.Run(() => Utility.FindIntegerLineSegmentPoints(intArray[0], intArray[1], intArray[2], intArray[3])));
                     }
                 }
+
+                while ((processedLines * 100 / lines.Length) < 100)
+                {
+                    if (_cancellationTokenSource.Token.IsCancellationRequested)
+                        throw new TaskCanceledException();
+
+                    var finishedTask = await Task.WhenAny(tasks);
+                    processedLines++;
+                    _uiPrinter.PrintProgressBar((processedLines * 100) / lines.Length);
+                    Thread.Sleep(1);
+                }
+
+                _uiPrinter.ClearConsole();
+                var results = await Task.WhenAll(tasks);
+
+
+                foreach (var result in results)
+                {
+                    AddPointsToDictionary(result, pointDict);
+                }
+
+
+                pointDict = FilterCrossingPoints(pointDict);
+
+                ReportCrossingPoints(pointDict);
+
+                if (mode == "print points")
+                {
+                    _uiPrinter.PrintPoints(pointDict);
+                }
+
+
             }
             catch (Exception)
             {
                 throw;
             }
-            _uiPrinter.PrintProgressBar(100);
-            Thread.Sleep(500);
-            return result;
-        }
-
-        private (int, int)[] CalculatePoints(int intA, int intB, int intC, int intD, Dictionary<(int, int), int> dict)
-        {
-            var result = Utility.FindIntegerLineSegmentPoints(intA, intB, intC, intD);
-            AddPointsToDictionary(result, dict);
-            return result;
         }
 
 
@@ -123,6 +170,23 @@ namespace HydrothermalJunctionDetector.Persistence
         private bool HasValidArrowFormat(string line, string arrowFormat)
         {
             return line.Contains(arrowFormat);
+        }
+
+        private Dictionary<(int, int), int> FilterCrossingPoints(Dictionary<(int, int), int> pointsDict, int minimumOcurrencies = 2)
+        {
+
+            return pointsDict.Where(kvp => kvp.Value >= minimumOcurrencies).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+        }
+
+        public void ReportCrossingPoints(Dictionary<(int, int), int> crossingPointDict)
+        {
+            var keyList = crossingPointDict.Keys.ToList();
+            keyList.Sort();
+            Console.WriteLine($"Number of dangerous points: {keyList.Count}");
+            foreach (var key in keyList)
+            {
+                Console.WriteLine($"{key.ToString()} -> {crossingPointDict[key]}");
+            }
         }
 
 
