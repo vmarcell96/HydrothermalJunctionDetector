@@ -14,10 +14,6 @@ namespace HydrothermalJunctionDetector.UI
         {
             _consoleLogger= consoleLogger;
         }
-        public void PrintError(string message)
-        {
-            throw new NotImplementedException();
-        }
 
         public void PrintMainMenu()
         {
@@ -26,7 +22,7 @@ namespace HydrothermalJunctionDetector.UI
 
         public void PrintMessage(string message)
         {
-            throw new NotImplementedException();
+            _consoleLogger.LogWriteLine(message);
         }
 
         public void ClearConsole()
@@ -38,16 +34,17 @@ namespace HydrothermalJunctionDetector.UI
         {
             Console.CursorVisible = false;
             Console.SetCursorPosition(1, 1);
-
-            Console.Write("[");
+            
             for (int y = 0; y < percentLoaded; y++)
             {
                 //Rename "pb" to "progBar" later or else
                 //string pb = "\u2551";
-                string pb = "=";
+                string pb = "\u2588";
                 Console.Write(pb);
             }
-            Console.Write("] " + (percentLoaded + " / 100%"));
+            Console.Write((percentLoaded + " / 100"));
+            Console.WriteLine("\nLoading ...");
+            Console.WriteLine("Press ESC to abort process.");
             Console.SetCursorPosition(1, 1);
             
         }
