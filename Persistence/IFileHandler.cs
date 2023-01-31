@@ -9,6 +9,6 @@ namespace HydrothermalJunctionDetector.Persistence
     internal interface IFileHandler
     {
         Task<string[]> ReadFileAsync(string fileLocation);
-        Task WriteFileAsync(string outputLocation);
+        Task WriteFileAsync(string outputLocation, string[] lines);
     }
 }
