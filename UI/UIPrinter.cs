@@ -15,11 +15,6 @@ namespace HydrothermalJunctionDetector.UI
             _consoleLogger= consoleLogger;
         }
 
-        public void PrintMainMenu()
-        {
-            throw new NotImplementedException();
-        }
-
         public void PrintMessage(string message)
         {
             _consoleLogger.LogWriteLine(message);
@@ -77,33 +72,66 @@ namespace HydrothermalJunctionDetector.UI
             var correctFilePath = "default";
             do
             {
-                Console.WriteLine("Please enter filepath or type in 'default' for the default ventfile: ");
+                Console.WriteLine("\nPlease enter a filepath (ending with a filename with a .txt file extension)");
+                Console.WriteLine("or type in 'default' for the default ventfile input: ");
                 var filePath = Console.ReadLine();
                 if (filePath == "default")
                 {
-                    break;
+                    if (File.Exists(@"..\..\..\InputFileLineSegments.txt"))
+                    {
+                        correctFilePath = @"..\..\..\InputFileLineSegments.txt";
+                        break;
+                    }
+                    Console.WriteLine("\nSorry cannot find the default file.");
                 }
                 if (filePath == "test")
                 {
-                    correctFilePath = @"..\..\..\InputFileLineSegments_Test.txt";
-                    break;
+                    if (File.Exists(@"..\..\..\InputFileLineSegments_Test.txt"))
+                    {
+                        correctFilePath = @"..\..\..\InputFileLineSegments_Test.txt";
+                        break;
+                    }
+                    Console.WriteLine("\nSorry cannot find the test file.");
                 }
                 if (File.Exists(filePath))
                 {
                     if (Path.GetExtension(filePath) == ".txt")
                     {
-                        Console.WriteLine("Thank you, correct file format.");
+                        Console.WriteLine("\nThank you, correct file format.");
                         correctFilePath = filePath;
                         break;
                     }
                     else
                     {
-                        Console.WriteLine("Sorry, incorrect file format.");
+                        Console.WriteLine("\nSorry, incorrect file format.");
                     }
                 }
                 else
                 {
-                    Console.WriteLine("There is no file found at the provided file path.");
+                    Console.WriteLine("\nThere is no file found at the provided file path.");
+                }
+
+            } while (true);
+            return correctFilePath;
+        }
+
+        public string GetOutputFileLocation()
+        {
+            var correctFilePath = "default";
+            do
+            {
+                Console.WriteLine("\nDefault file location is the root directory ");
+                Console.WriteLine("File name will be: CrossingPoints-RandomID.txt");
+                Console.WriteLine("Please enter a path to a directory or type in 'default' for the default output location: ");
+                var filePath = Console.ReadLine();
+                if (filePath == "default")
+                {
+                    Console.WriteLine("\nDefault directory selected!");
+                    break;
+                }
+                if (Directory.Exists(filePath))
+                {
+                    Console.WriteLine("\nFile will be in the project's root directory.");
                 }
 
             } while (true);
