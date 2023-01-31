@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace HydrothermalJunctionDetector.Logic
 {
-    internal class MainLogic : IMainLogic
+    internal class MainLogic
     {
         private readonly IFileParser _fileParser;
         private readonly IUIPrinter _uiPrinter;
@@ -23,64 +23,44 @@ namespace HydrothermalJunctionDetector.Logic
             throw new NotImplementedException();
         }
 
-        public Dictionary<(float, float), int> CalculateCrossingPoints(List<VentLine> ventLines)
+        
+
+        public void Run(string mode)
         {
-            Dictionary<(float, float), int> crossingPointDict = new Dictionary<(float, float), int>();
-            for (int i = 0; i < ventLines.Count-1; i++)
+            string filePath = _uiPrinter.GetInputFileLocation();
+            _uiPrinter.ClearConsole();
+            var pointsDict = _fileParser.ParseFile(filePath);
+            _uiPrinter.ClearConsole();
+            //By default this feature is disabled because console window is too small to display all the points
+            if (mode == "print points")
             {
-                var currentLine = ventLines[i];
-                for (int j = i+1; j < ventLines.Count; j++)
-                {
-                    (float, float)? crossingPoint = Utility.GetInterSectionOfSegments(currentLine.StartPoint, currentLine.EndPoint, ventLines[j].StartPoint, ventLines[j].EndPoint);
-                    if (crossingPoint.HasValue)
-                    {
-                        AddPointToDictionary(crossingPoint.Value, crossingPointDict);
-                    }
-                }
+                _uiPrinter.PrintPoints(pointsDict);
             }
-            return crossingPointDict;
+            var crossingPoints = FilterCrossingPoints(pointsDict);
+            ReportCrossingPoints(crossingPoints);
         }
 
-        private void AddPointToDictionary((float, float) point, Dictionary<(float, float), int> dict)
-        {
-            if (dict.ContainsKey(point))
-            {
-                dict[point]++;
-            }
-            else
-            {
-                dict[point] = 1;
-            }
-        }
-
-        public void GetCoordinates()
-        {
-            throw new NotImplementedException();
-        }
-
-        public string GetInputFileLocation()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void ReportCrossingPoints(Dictionary<(float, float), int> crossingPointDict)
+        public void ReportCrossingPoints(Dictionary<(int, int), int> crossingPointDict)
         {
             var keyList = crossingPointDict.Keys.ToList();
             keyList.Sort();
+            Console.WriteLine($"Number of dangerous points: {keyList.Count}");
             foreach (var key in keyList)
             {
                 Console.WriteLine($"{key.ToString()} -> {crossingPointDict[key]}");
             }
         }
 
-        public void ValidateFile()
+        private Dictionary<(int, int), int> FilterCrossingPoints(Dictionary<(int, int), int> pointsDict, int minimumOcurrencies = 2)
         {
-            throw new NotImplementedException();
+
+            return pointsDict.Where(kvp => kvp.Value >= minimumOcurrencies).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         }
 
         public void WriteOutReport()
         {
             throw new NotImplementedException();
         }
+
     }
 }
