@@ -9,8 +9,11 @@
 
   <ItemGroup>
     <Compile Remove="HydrothermalJunctionDetector.Tests\**" />
+    <Compile Remove="HydrothermalVentFileParser\**" />
     <EmbeddedResource Remove="HydrothermalJunctionDetector.Tests\**" />
+    <EmbeddedResource Remove="HydrothermalVentFileParser\**" />
     <None Remove="HydrothermalJunctionDetector.Tests\**" />
+    <None Remove="HydrothermalVentFileParser\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -20,6 +23,10 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="HydrothermalVentFileParser\HydrothermalVentFileParser.csproj" />
   </ItemGroup>
 
 </Project>
