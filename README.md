@@ -50,7 +50,7 @@ Navigate to built project's folder
 Run the exe file
 
 ```bash
-  HydrothermalJunctionDetector.exe
+  .\HydrothermalJunctionDetector.exe
 ```
 
 ## Bugs
