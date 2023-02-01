@@ -22,6 +22,11 @@ hydrothermal venting lines and report it to the user on the command line and add
 - Progress bar
 - Process is cancellable when progress bar is displayed
 
+## Class diagram
+
+
+![UmlClassDiagramFinal](https://user-images.githubusercontent.com/89020177/216064914-85732495-c709-4714-a6b0-832b055f5634.png)
+
 ## Run Locally
 
 ##### Prerequisites
