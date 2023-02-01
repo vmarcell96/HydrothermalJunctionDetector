@@ -1,9 +1,9 @@
-﻿// See https://aka.ms/new-console-template for more information
-using HydrothermalJunctionDetector;
-using HydrothermalJunctionDetector.Logic;
-using HydrothermalJunctionDetector.Persistence;
+﻿using HydrothermalJunctionDetector.Logic;
 using HydrothermalJunctionDetector.UI;
-using System.Diagnostics;
+using HydrothermalVentFileParser;
+using HydrothermalVentFileParser.Logging;
+using HydrothermalVentFileParser.Persistence;
+using HydrothermalVentFileParser.UI;
 
 namespace HydrothermalJunctionDetector
 {
@@ -19,7 +19,7 @@ namespace HydrothermalJunctionDetector
 
                 IFileHandler fileHandler = new FileHandler();
                 
-                IFileParser fileParser = new HydrothermalVentFileParser(fileHandler, uiPrinter);
+                IFileParser fileParser = new HydrothermalFileParser(fileHandler, uiPrinter);
 
                 MainLogic mainLogic = new MainLogic(fileParser, uiPrinter);
 

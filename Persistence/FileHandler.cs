@@ -1,15 +1,20 @@
-﻿using HydrothermalJunctionDetector.Persistence;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using HydrothermalVentFileParser.Persistence;
 
 namespace HydrothermalJunctionDetector
 {
     public class FileHandler : IFileHandler
     {
+        /// <summary>
+        ///     Reads a text file asynchronously at the provided file location.
+        /// </summary>
+        /// <param name="fileLocation">Provided file location.</param>
+        /// <returns>Returns an array of the file's lines.</returns>
         public async Task<string[]> ReadFileAsync(string fileLocation)
         {
             try
@@ -28,6 +33,12 @@ namespace HydrothermalJunctionDetector
             
         }
 
+        /// <summary>
+        ///     Writes a text file asynchronously to the provided directory path.
+        /// </summary>
+        /// <param name="outputLocation">Provided directory path.</param>
+        /// <param name="lines">Data to write.</param>
+        /// <returns></returns>
         public async Task WriteFileAsync(string outputLocation, string[] lines)
         {
             try

@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using HydrothermalVentFileParser.Logging;
+using HydrothermalVentFileParser.UI;
 
 namespace HydrothermalJunctionDetector.UI
 {
-    internal class UIPrinter : IUIPrinter
+    public class UIPrinter : IUIPrinter
     {
         private readonly ILogger _consoleLogger;
         
@@ -15,9 +12,14 @@ namespace HydrothermalJunctionDetector.UI
             _consoleLogger= consoleLogger;
         }
 
-        public void PrintMessage(string message)
+        public void PrintLine(string message)
         {
             _consoleLogger.LogWriteLine(message);
+        }
+
+        public void Print(string message)
+        {
+            _consoleLogger.LogWrite(message);
         }
 
         public void ClearConsole()
@@ -115,7 +117,11 @@ namespace HydrothermalJunctionDetector.UI
             return correctFilePath;
         }
 
-        public string GetOutputFileLocation()
+        /// <summary>
+        ///     Gets output file directory input from user.
+        /// </summary>
+        /// <returns></returns>
+        public string GetOutputFileDirectory()
         {
             var correctFilePath = "default";
             do
@@ -127,15 +133,32 @@ namespace HydrothermalJunctionDetector.UI
                 if (filePath == "default")
                 {
                     Console.WriteLine("\nDefault directory selected!");
+                    Console.WriteLine("\nFile will be in the project's root directory.");
                     break;
                 }
                 if (Directory.Exists(filePath))
                 {
-                    Console.WriteLine("\nFile will be in the project's root directory.");
+                    correctFilePath = filePath;
+                    break;
                 }
 
             } while (true);
             return correctFilePath;
+        }
+
+        /// <summary>
+        ///     Displays the dangerous crossing points in the console.
+        /// </summary>
+        /// <param name="crossingPointDict">Dictionary containing the crossing points with their occurrences.</param>
+        public void ReportCrossingPoints(Dictionary<(int, int), int> crossingPointDict)
+        {
+            var keyList = crossingPointDict.Keys.ToList();
+            keyList.Sort();
+            Console.WriteLine($"Number of dangerous points: {keyList.Count}");
+            foreach (var key in keyList)
+            {
+                Console.WriteLine($"{key.ToString()} -> {crossingPointDict[key]}");
+            }
         }
     }
 }

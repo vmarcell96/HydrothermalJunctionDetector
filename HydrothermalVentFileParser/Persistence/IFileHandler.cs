@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HydrothermalJunctionDetector.Persistence
+namespace HydrothermalVentFileParser.Persistence
 {
-    internal interface IFileHandler
+    public interface IFileHandler
     {
         Task<string[]> ReadFileAsync(string fileLocation);
         Task WriteFileAsync(string outputLocation, string[] lines);

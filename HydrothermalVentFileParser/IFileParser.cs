@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HydrothermalJunctionDetector.Logic
+namespace HydrothermalVentFileParser
 {
-    internal interface IFileParser
+    public interface IFileParser
     {
         Task ParseFileParallelAsync(string mode = "normal");
 

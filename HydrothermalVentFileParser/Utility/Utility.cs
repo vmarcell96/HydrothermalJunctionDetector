@@ -4,10 +4,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HydrothermalJunctionDetector.Logic
+namespace HydrothermalVentFileParser
 {
     public class Utility
     {
+        /// <summary>
+        ///     This is my first attempt to find the intersection points of the vents
+        ///     but this solution cannot detect common points if the two vents are parallel
+        /// </summary>
+        /// <param name="pointA"></param>
+        /// <param name="pointB"></param>
+        /// <param name="pointC"></param>
+        /// <param name="pointD"></param>
+        /// <returns></returns>
         public static (float, float)? GetInterSectionOfSegments((float, float) pointA, (float, float) pointB, (float, float) pointC, (float, float) pointD)
         {
             /*
@@ -66,6 +75,14 @@ namespace HydrothermalJunctionDetector.Logic
             return coord1 + (coord2 - coord1) * t;
         }
 
+        /// <summary>
+        ///     This method finds all integer points of a line segment, based on the provided two coordinates of the segment.
+        /// </summary>
+        /// <param name="X1"></param>
+        /// <param name="Y1"></param>
+        /// <param name="X2"></param>
+        /// <param name="Y2"></param>
+        /// <returns>Returns an array of the found points.</returns>
         public static (int, int)[] FindIntegerLineSegmentPoints(int X1, int Y1, int X2, int Y2)
         {
             (int, int)[] points;
@@ -130,7 +147,18 @@ namespace HydrothermalJunctionDetector.Logic
             }
             return points;
         }
-        
+
+        /// <summary>
+        ///     Converts Dictionary<(int, int), int> type object's key-value pairs into 
+        ///     a string array so it's not the FileHandler class's responsibility.
+        /// </summary>
+        /// <param name="pointsDict">Input dictionary.</param>
+        /// <returns>String array made from dictionary elements.</returns>
+        public static string[] ConvertPointDictionaryToStringArray(Dictionary<(int, int), int> pointsDict)
+        {
+            return pointsDict.Select(kvp => $"({kvp.Key.Item1},{kvp.Key.Item2}) -> {kvp.Value}\n").ToArray<string>();
+        }
+
 
     }
 }

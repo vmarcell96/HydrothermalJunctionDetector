@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HydrothermalJunctionDetector.UI
+namespace HydrothermalVentFileParser.Logging
 {
-    internal interface ILogger
+    public interface ILogger
     {
         void LogWriteLine(string message);
         public void LogWrite(string message);

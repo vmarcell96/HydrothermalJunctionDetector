@@ -4,19 +4,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HydrothermalJunctionDetector.UI
+namespace HydrothermalVentFileParser.UI
 {
-    internal interface IUIPrinter
+    public interface IUIPrinter
     {
         void PrintProgressBar(int percentLoaded);
-        void PrintMessage(string message);
-
+        void PrintLine(string message);
+        public void Print(string message);
         public string GetInputFileLocation();
-        public string GetOutputFileLocation();
-
+        public string GetOutputFileDirectory();
         public void PrintPoints(Dictionary<(int, int), int> pointsDict);
-
         public void ClearConsole();
+        public void ReportCrossingPoints(Dictionary<(int, int), int> crossingPointDict);
 
     }
 }
