@@ -1,18 +1,16 @@
 ﻿using HydrothermalVentFileParser.UI;
 using HydrothermalVentFileParser;
-
+using HydrothermalVentFileParser.Persistence;
 
 namespace HydrothermalJunctionDetector.Logic
 {
     internal class MainLogic
     {
         private readonly IFileParser _fileParser;
-        private readonly IUIPrinter _uiPrinter;
 
-        public MainLogic(IFileParser fileParser, IUIPrinter uiPrinter)
+        public MainLogic(IFileHandler fileHandler, IUIPrinter uiPrinter)
         {
-            _fileParser = fileParser;
-            _uiPrinter = uiPrinter;
+            _fileParser = new HydrothermalFileParser(fileHandler, uiPrinter);
         }
 
         public async Task Run()

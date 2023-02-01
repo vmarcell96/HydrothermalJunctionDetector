@@ -12,16 +12,15 @@ namespace HydrothermalJunctionDetector
         static async Task Main(string[] args)
         {
             ILogger consoleLogger = new ConsoleLogger();
-            
+
+            IUIPrinter uiPrinter = new UIPrinter(consoleLogger);
+
+            IFileHandler fileHandler = new FileHandler();
+
             try
             {
-                IUIPrinter uiPrinter = new UIPrinter(consoleLogger);
 
-                IFileHandler fileHandler = new FileHandler();
-                
-                IFileParser fileParser = new HydrothermalFileParser(fileHandler, uiPrinter);
-
-                MainLogic mainLogic = new MainLogic(fileParser, uiPrinter);
+                MainLogic mainLogic = new MainLogic(fileHandler, uiPrinter);
 
                 await mainLogic.Run();
 
