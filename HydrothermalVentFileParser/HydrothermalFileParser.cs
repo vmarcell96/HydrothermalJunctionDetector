@@ -51,22 +51,22 @@ namespace HydrothermalVentFileParser
                 ProcessPoints(results);
 
                 #region Report
-                ////reporting points to the console
-                //_uiPrinter.ReportCrossingPoints(pointDict);
+                //reporting points to the console
+                _uiPrinter.ReportCrossingPoints(_pointDict);
 
-                ////if "mode" variable equals "print points" the method will print the coordinates just like in the example
-                //if (mode == "print points")
-                //{
-                //    _uiPrinter.PrintPoints(pointDict);
-                //}
-                //#endregion
+                //if "mode" variable equals "print points" the method will print the coordinates just like in the example
+                if (mode == "print points")
+                {
+                    _uiPrinter.PrintPoints(_pointDict);
+                }
+                #endregion
 
-                //_uiPrinter.PrintLine("Parsing is complete press ENTER two times to continue");
+                _uiPrinter.PrintLine("Parsing is complete press ENTER two times to continue");
 
                 Console.ReadKey();
 
-                //#region Outputting the results
-                //await WriteOutReportAsync(pointDict);
+                #region Outputting the results
+                await WriteOutReportAsync();
                 #endregion
 
             }
