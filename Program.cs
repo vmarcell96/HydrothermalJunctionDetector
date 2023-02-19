@@ -22,8 +22,29 @@ namespace HydrothermalJunctionDetector
                 IFileParser fileParser = new HydrothermalFileParser(fileHandler, uiPrinter);
 
                 MainLogic mainLogic = new MainLogic(fileParser, uiPrinter);
-
-                await mainLogic.Run();
+                bool isQuitRequested = false;
+                while (!isQuitRequested)
+                {
+                    uiPrinter.ClearConsole();
+                    await mainLogic.Run();
+                    while (true)
+                    {
+                        Console.WriteLine("Do you want to parse another file? Choose Y if yes, press ANY other key to quit.");
+                        var response = Console.ReadKey();
+                        if (response.Key == ConsoleKey.Y)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            isQuitRequested= true;
+                            break;
+                        }
+                    }
+                }
+                uiPrinter.ClearConsole();
+                uiPrinter.PrintLine("GoodBye!");
+                
 
             }
             catch (Exception e)

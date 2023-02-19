@@ -41,11 +41,10 @@ namespace HydrothermalVentFileParser
             {
                 string[] lines = await GetLineData();
 
-                _uiPrinter.ClearConsole();
-                _uiPrinter.PrintProgressBar(0);
-
                 // Before the main calculation begins, start listening to the abort keypress
                 RunKeyBoardTask();
+
+                _uiPrinter.ClearConsole();
 
                 _stopwatch.Start();
 
@@ -125,6 +124,7 @@ namespace HydrothermalVentFileParser
             };
             Console.BackgroundColor = ConsoleColor.Black;
             Console.ForegroundColor = ConsoleColor.White;
+            _logs.Clear();
         }
 
         private Task<string[]> GetLineData()
@@ -155,7 +155,7 @@ namespace HydrothermalVentFileParser
             
 
             var bag = new ConcurrentBag<(int, int)[]>();
-
+            int invalidLineCount = 0;
 
             //CPU demanding task
             //Tasks are going to run parallel
@@ -165,9 +165,10 @@ namespace HydrothermalVentFileParser
             {
                 try
                 {
+
                     Task.Run(() =>
                     {
-                        while ((bag.Count * 100 / lines.Length) < 100)
+                        while (((bag.Count + invalidLineCount) * 100 / lines.Length) < 100)
                         {
                             if (_cancellationTokenSource.Token.IsCancellationRequested)
                                 throw new TaskCanceledException();
@@ -184,6 +185,10 @@ namespace HydrothermalVentFileParser
                             var result = Utility.FindIntegerLineSegmentPoints(intArray[0], intArray[1], intArray[2], intArray[3]);
                             bag.Add(result);
                             
+                        }
+                        else
+                        {
+                            invalidLineCount++;
                         }
                     });
                 }
@@ -206,6 +211,8 @@ namespace HydrothermalVentFileParser
             
             
             //all the points are being added to pointDict dictionary
+            _uiPrinter.ClearConsole();
+            _uiPrinter.PrintLine("Adding points to dictionary...");
             foreach (var pointArray in pointArrays)
             {
                 AddPointsToDictionary(pointArray);
@@ -218,6 +225,8 @@ namespace HydrothermalVentFileParser
             //filtering the points that have more than 1 occurrences
             _stopwatch.Restart();
 
+            _uiPrinter.ClearConsole();
+            _uiPrinter.PrintLine("Filtering crossing points...");
             _pointDict = FilterCrossingPoints(_pointDict);
 
             _stopwatch.Stop();
@@ -254,8 +263,17 @@ namespace HydrothermalVentFileParser
 
             _stopwatch.Restart();
 
-            await _fileHandler.WriteFileAsync(outputDirectoryPath, Utility.ConvertPointDictionaryToStringArray(_pointDict));
+            _uiPrinter.ClearConsole();
+            _uiPrinter.PrintLine("Writing report to file...");
+            try
+            {
+                await _fileHandler.WriteFileAsync(outputDirectoryPath, Utility.ConvertPointDictionaryToStringArray(_pointDict));
+            }
+            catch (Exception)
+            {
 
+                throw;
+            }
             _stopwatch.Stop();
             //_uiPrinter.PrintLine($"Writing finished in: {_stopwatch.ElapsedMilliseconds} ms");
             _logs.Add($"Writing finished in: {_stopwatch.ElapsedMilliseconds} ms");
