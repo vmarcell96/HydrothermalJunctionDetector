@@ -11,7 +11,8 @@ namespace HydrothermalVentFileParser
     {
         private readonly IFileHandler _fileHandler;
         private readonly IUIPrinter _uiPrinter;
-        private readonly CancellationTokenSource _cancellationTokenSource;
+        private CancellationTokenSource? _calculationCts;
+        private CancellationTokenSource? _keyboardTaskCts;
         private readonly Stopwatch _stopwatch;
         private Dictionary<(int, int), int> _pointDict;
         private List<string> _logs;
@@ -20,7 +21,6 @@ namespace HydrothermalVentFileParser
         {
             _fileHandler = fileHandler;
             _uiPrinter = uiPrinter;
-            _cancellationTokenSource = new CancellationTokenSource();
             _stopwatch = new Stopwatch();
             //initializing the dictionary that will hold all the segment points
             _pointDict = new Dictionary<(int, int), int>();
@@ -39,35 +39,38 @@ namespace HydrothermalVentFileParser
         {
             try
             {
+                _calculationCts = new();
+                _keyboardTaskCts = new();
+
                 string[] lines = await GetLineData();
 
-                // Before the main calculation begins, start listening to the abort keypress
+                // Before the main calculation begins, start listening to the abort keypress    
                 RunKeyBoardTask();
 
                 _uiPrinter.ClearConsole();
 
                 _stopwatch.Start();
 
-                (int, int)[][] results = await CalculateSegmentPoints(lines);
+                // Parallel calculations
+                (int, int)[][] results = await GetPointsOfSegments(lines);
 
                 _stopwatch.Stop();
                 _uiPrinter.ClearConsole();
-                //_uiPrinter.PrintLine($"Parsing points in {_stopwatch.ElapsedMilliseconds} ms");
                 _logs.Add($"Parsing points in {_stopwatch.ElapsedMilliseconds} ms");
+
 
                 ProcessPoints(results);
 
-                #region Report
                 ////reporting points to the console
-                _uiPrinter.ReportCrossingPoints(_pointDict);
+                _uiPrinter.ReportCrossingPoints(_pointDict, _calculationCts.Token);
 
                 //if "mode" variable equals "print points" the method will print the coordinates just like in the example
                 if (mode == "print points")
                 {
                     _uiPrinter.PrintPoints(_pointDict);
                 }
-                #endregion
 
+                
                 _uiPrinter.PrintLine("Parsing is complete press ENTER two times to continue");
 
                 Console.ReadKey();
@@ -87,9 +90,20 @@ namespace HydrothermalVentFileParser
             }
             catch (Exception)
             {
+                CleanupCancellationTokenSources();
                 throw;
             }
         }
+
+        private void CleanupCancellationTokenSources()
+        {
+            _keyboardTaskCts.Cancel();
+            _keyboardTaskCts.Dispose();
+            _keyboardTaskCts = null;
+            _calculationCts.Dispose();
+            _calculationCts = null;
+        }
+
 
         /// <summary>
         ///     Starts a Task where the thread is listening to the user's keypress.
@@ -103,16 +117,14 @@ namespace HydrothermalVentFileParser
                 var key = Console.ReadKey();
                 if (key.Key == ConsoleKey.Escape)
                 {
-                    // Cancel the task
-                    _uiPrinter.ClearConsole();
-                    _cancellationTokenSource.Cancel();
+                    _calculationCts.Cancel();
                 }
-            });
+
+            }, _keyboardTaskCts.Token);
         }
 
         private void ShowLogs()
         {
-            
             _uiPrinter.PrintLine(Environment.NewLine);
             Console.BackgroundColor = ConsoleColor.Gray;
             Console.ForegroundColor = ConsoleColor.Red;
@@ -150,93 +162,113 @@ namespace HydrothermalVentFileParser
             
         }
 
-        private async Task<(int, int)[][]> CalculateSegmentPoints(string[] lines)
+        private async Task<(int, int)[][]> GetPointsOfSegments(string[] lines)
         {
-            
-
             var bag = new ConcurrentBag<(int, int)[]>();
             int invalidLineCount = 0;
 
             //CPU demanding task
             //Tasks are going to run parallel
-
-            
             await Task.Run(() =>
             {
                 try
                 {
-
                     Task.Run(() =>
                     {
-                        while (((bag.Count + invalidLineCount) * 100 / lines.Length) < 100)
-                        {
-                            if (_cancellationTokenSource.Token.IsCancellationRequested)
-                                throw new TaskCanceledException();
-                            _uiPrinter.PrintProgressBar((bag.Count * 100) / lines.Length);
-                        }
-                        _uiPrinter.ClearConsole();
+                        ShowLoadingBar(bag, invalidLineCount, lines);
                     });
-                    Parallel.ForEach(lines, (line) =>
+
+                    var options = new ParallelOptions
                     {
-                        int[] intArray = ConvertTextLineToIntArray(line);
-                        if (CheckLineSlopeValidity(intArray[0], intArray[1], intArray[2], intArray[3]))
-                        {
-                            //Thread.Sleep(1);
-                            var result = Utility.FindIntegerLineSegmentPoints(intArray[0], intArray[1], intArray[2], intArray[3]);
-                            bag.Add(result);
-                            
-                        }
-                        else
-                        {
-                            invalidLineCount++;
-                        }
+                        CancellationToken= _calculationCts.Token,
+                    };
+
+                    Parallel.ForEach(lines, options, (line) =>
+                    {
+                        CalculateSegmentPoints(bag, ref invalidLineCount, line);
                     });
+                }
+                catch (TaskCanceledException)
+                {
+                    throw;
+                }
+                catch (AggregateException)
+                {
+                    throw;
                 }
                 catch (Exception)
                 {
                     throw;
                 }
             });
-            
-            
-
-            
-
             return bag.ToArray();
+        }
+
+        private void CalculateSegmentPoints(ConcurrentBag<(int, int)[]> bag, ref int invalidLineCount, string line)
+        {
+            int[] intArray = ConvertTextLineToIntArray(line);
+            if (CheckLineSlopeValidity(intArray[0], intArray[1], intArray[2], intArray[3]))
+            {
+                //Thread.Sleep(1);
+                var result = Utility.FindIntegerLineSegmentPoints(intArray[0], intArray[1], intArray[2], intArray[3]);
+                bag.Add(result);
+            }
+            else
+            {
+                invalidLineCount++;
+            }
+        }
+
+        private void ShowLoadingBar(ConcurrentBag<(int, int)[]> bag, int invalidLineCount, string[] lines)
+        {
+            while (((bag.Count + invalidLineCount) * 100 / lines.Length) < 100)
+            {
+                if (_calculationCts.Token.IsCancellationRequested)
+                    break;
+                _uiPrinter.PrintProgressBar((bag.Count * 100) / lines.Length);
+            }
+            _uiPrinter.ClearConsole();
         }
 
         private void ProcessPoints((int, int)[][] pointArrays)
         {
-            _stopwatch.Restart();
-            
-            
-            //all the points are being added to pointDict dictionary
-            _uiPrinter.ClearConsole();
-            _uiPrinter.PrintLine("Adding points to dictionary...");
-            foreach (var pointArray in pointArrays)
+            try
             {
-                AddPointsToDictionary(pointArray);
+                _stopwatch.Restart();
+
+                //all the points are being added to pointDict dictionary
+                _uiPrinter.ClearConsole();
+                _uiPrinter.PrintLine("Adding points to dictionary...");
+                foreach (var pointArray in pointArrays)
+                {
+                    if (_calculationCts.Token.IsCancellationRequested)
+                    {
+                        throw new OperationCanceledException();
+                    }
+                    AddPointsToDictionary(pointArray);
+                }
+
+                _stopwatch.Stop();
+                _logs.Add($"Adding points to dictionary in: {_stopwatch.ElapsedMilliseconds} ms");
+
+                //filtering the points that have more than 1 occurrences
+                _stopwatch.Restart();
+
+                _uiPrinter.ClearConsole();
+                _uiPrinter.PrintLine("Filtering crossing points...");
+                _pointDict = FilterCrossingPoints(_pointDict);
+
+                _stopwatch.Stop();
+                _logs.Add($"Filtering points done in: {_stopwatch.ElapsedMilliseconds} ms");
             }
-
-            _stopwatch.Stop();
-            //_uiPrinter.PrintLine($"Adding points to dictionary in: {_stopwatch.ElapsedMilliseconds} ms");
-            _logs.Add($"Adding points to dictionary in: {_stopwatch.ElapsedMilliseconds} ms");
-
-            //filtering the points that have more than 1 occurrences
-            _stopwatch.Restart();
-
-            _uiPrinter.ClearConsole();
-            _uiPrinter.PrintLine("Filtering crossing points...");
-            _pointDict = FilterCrossingPoints(_pointDict);
-
-            _stopwatch.Stop();
-            _logs.Add($"Filtering points done in: {_stopwatch.ElapsedMilliseconds} ms");
-            //_uiPrinter.PrintLine($"Filtering points done in: {_stopwatch.ElapsedMilliseconds} ms");
-
-
+            catch (Exception)
+            {
+                _uiPrinter.ClearConsole();
+                //Only shows message later when I print this first.
+                _uiPrinter.PrintLine("asd");
+                throw;
+            }
         }
-
-
 
 
         /// <summary>
@@ -246,8 +278,6 @@ namespace HydrothermalVentFileParser
         /// <returns></returns>
         private async Task WriteOutReportAsync()
         {
-            
-
             //getting the output file directory from the user
             string outputDirectoryPath = _uiPrinter.GetOutputFileDirectory();
 
@@ -275,7 +305,6 @@ namespace HydrothermalVentFileParser
                 throw;
             }
             _stopwatch.Stop();
-            //_uiPrinter.PrintLine($"Writing finished in: {_stopwatch.ElapsedMilliseconds} ms");
             _logs.Add($"Writing finished in: {_stopwatch.ElapsedMilliseconds} ms");
         }
         
@@ -304,6 +333,7 @@ namespace HydrothermalVentFileParser
             
         }
 
+
         /// <summary>
         ///     Checks if a line segment's slope is a multiple of 45 degrees or not.
         ///     If not it returns false.
@@ -319,6 +349,7 @@ namespace HydrothermalVentFileParser
             int deltaX = endX - startX;
             return deltaX == 0 || deltaY == 0 || Math.Abs(deltaX) == Math.Abs(deltaY);
         }
+
 
         /// <summary>
         ///     This method tries to convert a string to an int array. If it finds
@@ -359,6 +390,7 @@ namespace HydrothermalVentFileParser
             return coordInts;
         }
 
+
         /// <summary>
         ///     This method checks a string if it is contains the desired arrow format.
         /// </summary>
@@ -369,6 +401,7 @@ namespace HydrothermalVentFileParser
         {
             return line.Contains(arrowFormat);
         }
+
 
         /// <summary>
         ///     This method filters a disctionary based on it's values, if a key,value pair
