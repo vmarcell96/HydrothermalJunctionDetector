@@ -15,7 +15,7 @@ namespace HydrothermalVentFileParser.UI
         public string GetOutputFileDirectory();
         public void PrintPoints(Dictionary<(int, int), int> pointsDict);
         public void ClearConsole();
-        public void ReportCrossingPoints(Dictionary<(int, int), int> crossingPointDict);
+        public void ReportCrossingPoints(Dictionary<(int, int), int> crossingPointDict, CancellationToken token);
 
     }
 }

@@ -150,13 +150,14 @@ namespace HydrothermalJunctionDetector.UI
         ///     Displays the dangerous crossing points in the console.
         /// </summary>
         /// <param name="crossingPointDict">Dictionary containing the crossing points with their occurrences.</param>
-        public void ReportCrossingPoints(Dictionary<(int, int), int> crossingPointDict)
+        public void ReportCrossingPoints(Dictionary<(int, int), int> crossingPointDict, CancellationToken token)
         {
             var keyList = crossingPointDict.Keys.ToList();
             keyList.Sort();
             Console.WriteLine($"Number of dangerous points: {keyList.Count}");
             foreach (var key in keyList)
             {
+                if (token.IsCancellationRequested) throw new OperationCanceledException();
                 Console.WriteLine($"{key.ToString()} -> {crossingPointDict[key]}");
             }
         }
