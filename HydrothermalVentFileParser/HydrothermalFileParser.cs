@@ -164,7 +164,7 @@ namespace HydrothermalVentFileParser
 
         private async Task<(int, int)[][]> GetPointsOfSegments(string[] lines)
         {
-            var bag = new ConcurrentBag<(int, int)[]>();
+            var list = new List<(int, int)[]>();
             int invalidLineCount = 0;
 
             //CPU demanding task
@@ -175,18 +175,14 @@ namespace HydrothermalVentFileParser
                 {
                     Task.Run(() =>
                     {
-                        ShowLoadingBar(bag, invalidLineCount, lines);
+                        ShowLoadingBar(list, invalidLineCount, lines);
                     });
 
-                    var options = new ParallelOptions
+
+                    foreach (var line in lines)
                     {
-                        CancellationToken= _calculationCts.Token,
+                        CalculateSegmentPoints(list, ref invalidLineCount, line);
                     };
-
-                    Parallel.ForEach(lines, options, (line) =>
-                    {
-                        CalculateSegmentPoints(bag, ref invalidLineCount, line);
-                    });
                 }
                 catch (TaskCanceledException)
                 {
@@ -201,10 +197,10 @@ namespace HydrothermalVentFileParser
                     throw;
                 }
             });
-            return bag.ToArray();
+            return list.ToArray();
         }
 
-        private void CalculateSegmentPoints(ConcurrentBag<(int, int)[]> bag, ref int invalidLineCount, string line)
+        private void CalculateSegmentPoints(List<(int, int)[]> bag, ref int invalidLineCount, string line)
         {
             int[] intArray = ConvertTextLineToIntArray(line);
             if (CheckLineSlopeValidity(intArray[0], intArray[1], intArray[2], intArray[3]))
@@ -219,7 +215,7 @@ namespace HydrothermalVentFileParser
             }
         }
 
-        private void ShowLoadingBar(ConcurrentBag<(int, int)[]> bag, int invalidLineCount, string[] lines)
+        private void ShowLoadingBar(List<(int, int)[]> bag, int invalidLineCount, string[] lines)
         {
             while (((bag.Count + invalidLineCount) * 100 / lines.Length) < 100)
             {
