@@ -9,8 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HydrothermalVentFileParser"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{9056066E-91CB-4BBD-A702-AF2C4A345EE9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HydrothermalJunctionDetectorTests", "..\Tests\HydrothermalVentFileParserTests\HydrothermalJunctionDetectorTests.csproj", "{EED95FCC-8D34-4081-9AA8-15A05B12FF46}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,16 +23,9 @@ Global
 		{E8E5EB54-B0E1-44A3-817F-D448859B768D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E8E5EB54-B0E1-44A3-817F-D448859B768D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E8E5EB54-B0E1-44A3-817F-D448859B768D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EED95FCC-8D34-4081-9AA8-15A05B12FF46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EED95FCC-8D34-4081-9AA8-15A05B12FF46}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EED95FCC-8D34-4081-9AA8-15A05B12FF46}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EED95FCC-8D34-4081-9AA8-15A05B12FF46}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{EED95FCC-8D34-4081-9AA8-15A05B12FF46} = {9056066E-91CB-4BBD-A702-AF2C4A345EE9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {76B4F3DB-AF5B-460D-BDF7-D6CB0E70297B}

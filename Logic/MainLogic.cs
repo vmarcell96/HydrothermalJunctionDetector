@@ -21,7 +21,7 @@ namespace HydrothermalJunctionDetector.Logic
             {
                 await _fileParser.ParseFileParallelAsync();
             }
-            catch (TaskCanceledException)
+            catch (Exception)
             {
                 throw;
             }

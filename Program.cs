@@ -12,16 +12,17 @@ namespace HydrothermalJunctionDetector
         static async Task Main(string[] args)
         {
             ILogger consoleLogger = new ConsoleLogger();
-            
+
+            IUIPrinter uiPrinter = new UIPrinter(consoleLogger);
+
+            IFileHandler fileHandler = new FileHandler();
+
+            IFileParser fileParser = new HydrothermalFileParser(fileHandler, uiPrinter);
+
+            MainLogic mainLogic = new MainLogic(fileParser, uiPrinter);
+
             try
             {
-                IUIPrinter uiPrinter = new UIPrinter(consoleLogger);
-
-                IFileHandler fileHandler = new FileHandler();
-                
-                IFileParser fileParser = new HydrothermalFileParser(fileHandler, uiPrinter);
-
-                MainLogic mainLogic = new MainLogic(fileParser, uiPrinter);
                 bool isQuitRequested = false;
                 while (!isQuitRequested)
                 {
@@ -47,8 +48,22 @@ namespace HydrothermalJunctionDetector
                 
 
             }
+            catch (AggregateException e)
+            {
+                uiPrinter.ClearConsole();
+                foreach (var ex in e.InnerExceptions)
+                {
+                   consoleLogger.LogError(ex.Message);
+                }
+            }
+            catch (OperationCanceledException e)
+            {
+                uiPrinter.ClearConsole();
+                consoleLogger.LogError("Parsing process canceled by user.");
+            }
             catch (Exception e)
             {
+                uiPrinter.ClearConsole();
                 consoleLogger.LogError(e.Message);
             }
         }
